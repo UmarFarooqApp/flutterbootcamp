@@ -1,9 +1,9 @@
 import 'package:firbasenewproject/Singn_In_Screen.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Core/databaseServices/firestosreServices.dart';
-import 'Singn_In_Screen.dart';
-import 'main.dart';
+
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -42,12 +42,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             myButton(text: "delete data",onpress: (){FirestoreServices.removeData();},),
             myButton(text: "getuserid",onpress: (){FirestoreServices.currentUserId();},),
+            SizedBox(height: 50),
+            Text('upload image to firebsae storage'),
+            SizedBox(height: 20),
+            myButton(text: "upload image",onpress: (){FirestoreServices.pickImage();},),
+            myButton(text: "getimage",onpress: ()async{imagUrl=await FirestoreServices. getImageURL("");
+              setState(() {
+
+              });
+              },),
+            SizedBox(height: 20,),
+            Container(
+              height: 250,
+              child: Image.network(imagUrl,fit: BoxFit.contain,),
+            )
+
 
           ],
         ),
       ),
     );
   }
+  String imagUrl='';
 }
 
 class myButton extends StatelessWidget {

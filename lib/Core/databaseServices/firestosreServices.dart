@@ -1,7 +1,11 @@
 
 
+
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../student.dart';
@@ -89,11 +93,66 @@ pref.setString("current", value);
 print('data stored in sharepref $value');
 getcurrentId();
   }
+ static getcurrentId()async{
+   final pref = await SharedPreferences.getInstance();
+   String? value=pref.getString("current");
+   print('got data from share pref is  $value');
+   return value;
+ }
+ static final ImagePicker _imagePicker = ImagePicker();
+static FirebaseStorage _storage = FirebaseStorage.instance;
+static XFile? _pickedImage;
+
+static Future<void> pickImage() async {
+   XFile? pickedImage = await _imagePicker.pickImage(source: ImageSource.camera);
+
+
+     _pickedImage = pickedImage;
+   _uploadImage(_pickedImage);
+
+ }
+
+ static Future<void> _uploadImage(XFile? pickedImage) async {
+   if (pickedImage == null) {
+     return;
+   }
+
+   File imageFile = File(pickedImage.path);
+   String imageName = DateTime.now().toString(); // You can choose a better naming strategy
+  Reference reference = _storage.ref().child('images/$imageName.jpg');
+
+   UploadTask uploadTask = reference.putFile(imageFile);
+   await uploadTask.whenComplete(()async {
+     String imageurl=await getImageURL("");
+
+
+     print('Image uploaded to Firebase Storage.');
+
+   });
+ }
+ //
+// downloade the image
+//
+
+ static String _imageURL = '';
+
+ static Future<String> getImageURL(String imagePath) async {
+    FirebaseStorage _storage = FirebaseStorage.instance;
+    try {
+      Reference reference = _storage.ref().child("images/2023-08-18 12:36:23.888991.jpg");
+      String downloadURL = await reference.getDownloadURL();
+
+
+        _imageURL = downloadURL;
+
+
+      print('Image URL: $_imageURL');
+    } catch (e) {
+      print('Error getting image URL: $e');
+    }
+    return _imageURL;
+  }
+
 
 }
-getcurrentId()async{
-  final pref = await SharedPreferences.getInstance();
-  String? value=pref.getString("current");
-  print('got data from share pref is  $value');
-return value;
-}
+
